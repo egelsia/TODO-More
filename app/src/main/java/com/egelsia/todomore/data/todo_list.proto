@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package com.egelsia.todomore;
+
+option java_package = "com.egelsia.todomore";
+option java_outer_classname = "TODOItemProto";
+
+enum PriorityLevel {
+    LOW = 0;
+    NORMAL = 1;
+    HIGH = 2;
+}
+
+enum TODOStatus {
+    TODO = 0;
+    PROGRESS = 1;
+    COMPLETED = 2;
+}
+
+message Color {
+    float red = 1;
+    float green = 2;
+    float blue = 3;
+    float alpha = 4;
+}
+
+message TODOItem {
+    string title = 1;
+    string description = 2;
+    int64 created_date = 3;
+    int64 due_date = 4;
+    int64 completion_date = 5;
+    string category = 6;
+    PriorityLevel priority_level = 7;
+    TODOStatus status = 8;
+    bool reminder = 9;
+    Color color = 10;
+}

@@ -2,8 +2,8 @@ package com.egelsia.todomore.components
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Menu
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -13,18 +13,19 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.egelsia.todomore.R
+import com.egelsia.todomore.data.TODOViewModel
+import com.egelsia.todomore.data.todo.TODOItem
 
-@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     modifier: Modifier = Modifier,
-    navController: NavController = rememberNavController()
+    navController: NavController = rememberNavController(),
+    todoViewModel: TODOViewModel
 ) {
     CenterAlignedTopAppBar(
         title = { Icon(painterResource(R.drawable.todomore), contentDescription = "App Icon", tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(80.dp)) },
@@ -37,9 +38,16 @@ fun TopBar(
         },
         actions = {
             IconButton(
-                onClick = {}
+                onClick = {
+                    val todoItem = TODOItem(
+                        title = "gg",
+                        description = "My Item",
+                        category = "CATEGORY"
+                    )
+                    todoViewModel.upsertTODOItem(todoItem)
+                }
             ) {
-                Icon(Icons.Rounded.Settings, "Settings")
+                Icon(Icons.Rounded.AccountCircle, "Account")
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

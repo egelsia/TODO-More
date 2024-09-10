@@ -3,10 +3,11 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.compose.compiler)
     kotlin("plugin.serialization") version "2.0.0"
+    id("com.google.devtools.ksp")
 }
 
 android {
-    namespace = "com.egelsia.todomor"
+    namespace = "com.egelsia.todomore"
     compileSdk = 34
 
     defaultConfig {
@@ -71,8 +72,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation("androidx.compose.material:material-icons-extended:1.6.8")
-    implementation("androidx.datastore:datastore:1.1.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
+
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    implementation("androidx.compose.material:material-icons-extended:1.7.0")
+
 }

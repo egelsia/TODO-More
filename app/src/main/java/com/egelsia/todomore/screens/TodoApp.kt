@@ -7,7 +7,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,14 +22,17 @@ import androidx.navigation.compose.rememberNavController
 import com.egelsia.todomore.components.AddTODOSheet
 import com.egelsia.todomore.components.NavBar
 import com.egelsia.todomore.components.TopBar
+import com.egelsia.todomore.data.TODOViewModel
+import com.egelsia.todomore.data.todo.TODOItemDao
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoApp(startDestination: String = "main") {
+fun TodoApp(startDestination: String = "main", todoItemDao: TODOItemDao) {
 
     val navController = rememberNavController()
     var selectedItem by remember { mutableIntStateOf(2) }
     var showBottomSheet by remember{ mutableStateOf(false) }
+    val todoViewModel = TODOViewModel(todoItemDao)
 
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false
@@ -43,7 +45,7 @@ fun TodoApp(startDestination: String = "main") {
     }
 
     Scaffold(
-        topBar = { TopBar(navController = navController) },
+        topBar = { TopBar(navController = navController, todoViewModel = todoViewModel) },
         bottomBar = { NavBar(selectedItem = selectedItem, navController = navController, onItemSelected = { selectedItem = it })},
         floatingActionButton = {
             FloatingActionButton(onClick = { showBottomSheet = true }) {
@@ -58,8 +60,7 @@ fun TodoApp(startDestination: String = "main") {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable("main") {
-                Text("TODOMORE")
-
+                DailyView(todoViewModel = todoViewModel)
             }
         }
     }

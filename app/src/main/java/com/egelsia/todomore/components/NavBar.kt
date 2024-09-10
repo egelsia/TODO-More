@@ -1,13 +1,12 @@
 package com.egelsia.todomore.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Today
-import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.Checklist
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.Today
@@ -45,7 +44,7 @@ fun NavBar(
         CustomIcon(Icons.Outlined.DateRange, Icons.Rounded.DateRange, "main", "Weekly"),
         CustomIcon(Icons.Outlined.Timer, Icons.Rounded.Timer,"main", "Timer"),
         CustomIcon(Icons.Outlined.CalendarToday, Icons.Rounded.CalendarToday,"main", "Monthly"),
-        CustomIcon(Icons.Outlined.CalendarMonth, Icons.Rounded.CalendarMonth,"main", "Calendar")
+        CustomIcon(Icons.Rounded.Checklist, Icons.Rounded.Checklist,"main", "All")
     )
 
     NavigationBar(

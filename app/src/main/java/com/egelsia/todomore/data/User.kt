@@ -11,5 +11,5 @@ data class User(
     val deletedTodos: Int = 0,
     val totalTodos: Int = 0,
     val totalTime: Long = 0L,
-    @PrimaryKey(autoGenerate = true) val id : Int = 0
+    @PrimaryKey val id : Int = 1
 )

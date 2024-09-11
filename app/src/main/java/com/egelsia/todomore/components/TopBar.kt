@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.egelsia.todomore.R
 import com.egelsia.todomore.data.TODOViewModel
+import com.egelsia.todomore.data.todo.PriorityLevel
 import com.egelsia.todomore.data.todo.TODOItem
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +32,8 @@ fun TopBar(
         title = { Icon(painterResource(R.drawable.todomore), contentDescription = "App Icon", tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(80.dp)) },
         navigationIcon = {
             IconButton(
-                onClick = {}
+                onClick = {
+                }
             ) {
                 Icon(Icons.Rounded.Menu, "Menu")
             }
@@ -40,9 +42,10 @@ fun TopBar(
             IconButton(
                 onClick = {
                     val todoItem = TODOItem(
-                        title = "gg",
-                        description = "My Item",
-                        category = "CATEGORY"
+                        title = "TODO Item",
+                        description = "Description",
+                        category = "category",
+                        priorityLevel = PriorityLevel.NORMAL
                     )
                     todoViewModel.upsertTODOItem(todoItem)
                 }

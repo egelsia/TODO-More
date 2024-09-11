@@ -1,17 +1,18 @@
 package com.egelsia.todomore.data
 
 import androidx.room.TypeConverter
+import java.time.LocalDate
 import java.util.Date
 
 class Converters {
     @TypeConverter
-    fun fromTimeStamp(value: Long?) : Date? {
-        return value?.let {Date(it)}
+    fun fromTimeStamp(value: String?) : LocalDate? {
+        return value?.let {LocalDate.parse(it)}
     }
 
     @TypeConverter
-    fun dateToTimeStamp(date: Date?): Long? {
-        return date?.time
+    fun dateToTimeStamp(date: LocalDate?): String? {
+        return date?.toString()
     }
 
 //

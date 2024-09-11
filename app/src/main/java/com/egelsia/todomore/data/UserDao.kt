@@ -12,4 +12,7 @@ interface UserDao {
 
     @Query("SELECT * FROM user")
     suspend fun getUser() : List<User>
+
+    @Query("SELECT COUNT(*) FROM user")
+    suspend fun getUserCount(): Int
 }

@@ -14,17 +14,20 @@ interface TODOItemDao {
     @Delete
     suspend fun deleteTODOItem(todoItem: TODOItem)
 
+    @Query("DELETE FROM todo_table WHERE id =:id")
+    suspend fun deleteTODOItemById(id: Int)
+
     @Query("SELECT * FROM todo_table ORDER BY dueDate ASC")
     fun getItemsOrderedByDueDate() : Flow<List<TODOItem>>
 
-    //@Query("SELECT * FROM todo_table ORDER BY priorityLevel ASC")
-    //fun getItemsOrderedByPriorityLevel() : Flow<List<TODOItem>>
+    @Query("SELECT * FROM todo_table ORDER BY priorityLevel ASC")
+    fun getItemsOrderedByPriorityLevel() : Flow<List<TODOItem>>
 
     @Query("SELECT * FROM todo_table ORDER BY createdDate ASC")
     fun getItemsOrderedByCreatedDate() : Flow<List<TODOItem>>
 
-    //@Query("SELECT * FROM todo_table ORDER BY status DESC")
-    //fun getItemsOrderedByStatus() : Flow<List<TODOItem>>
+    @Query("SELECT * FROM todo_table ORDER BY status DESC")
+    fun getItemsOrderedByStatus() : Flow<List<TODOItem>>
 
     @Query("SELECT * FROM todo_table ORDER BY category ASC")
     fun getItemsOrderedByCategory(): Flow<List<TODOItem>>

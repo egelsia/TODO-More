@@ -21,24 +21,24 @@ class TODOViewModel(private val todoItemDao: TODOItemDao) : ViewModel() {
                 val todoList = todoItemDao.getItemsOrderedByCreatedDate()
                 _todoState.value = StateHolder.Success<Flow<List<TODOItem>>>(todoList)
             } catch (e: Exception) {
-                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of logs.")
+                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of todos.")
                 StateHolder.Error(e.message ?: "An unknown error occurred.")
             }
         }
     }
 
-//    fun getListOrderedByPriorityLevel() {
-//        viewModelScope.launch {
-//            _todoState.value = StateHolder.Loading
-//            try {
-//                val todoList = todoItemDao.getItemsOrderedByPriorityLevel()
-//                _todoState.value = StateHolder.Success<Flow<List<TODOItem>>>(todoList)
-//            } catch (e: Exception) {
-//                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of logs.")
-//                StateHolder.Error(e.message ?: "An unknown error occurred.")
-//            }
-//        }
-//    }
+    fun getListOrderedByPriorityLevel() {
+        viewModelScope.launch {
+            _todoState.value = StateHolder.Loading
+            try {
+                val todoList = todoItemDao.getItemsOrderedByPriorityLevel()
+                _todoState.value = StateHolder.Success<Flow<List<TODOItem>>>(todoList)
+            } catch (e: Exception) {
+                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of todos.")
+                StateHolder.Error(e.message ?: "An unknown error occurred.")
+            }
+        }
+    }
 
     fun getListOrderedByCreatedCategory() {
         viewModelScope.launch {
@@ -47,7 +47,7 @@ class TODOViewModel(private val todoItemDao: TODOItemDao) : ViewModel() {
                 val todoList = todoItemDao.getItemsOrderedByCategory()
                 _todoState.value = StateHolder.Success<Flow<List<TODOItem>>>(todoList)
             } catch (e: Exception) {
-                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of logs.")
+                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of todos.")
                 StateHolder.Error(e.message ?: "An unknown error occurred.")
             }
         }
@@ -60,32 +60,42 @@ class TODOViewModel(private val todoItemDao: TODOItemDao) : ViewModel() {
                 val todoList = todoItemDao.getItemsOrderedByDueDate()
                 _todoState.value = StateHolder.Success<Flow<List<TODOItem>>>(todoList)
             } catch (e: Exception) {
-                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of logs.")
+                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of todos.")
                 StateHolder.Error(e.message ?: "An unknown error occurred.")
             }
         }
     }
 
-//    fun getListOrderedByStatus() {
-//        viewModelScope.launch {
-//            _todoState.value = StateHolder.Loading
-//            try {
-//                val todoList = todoItemDao.getItemsOrderedByStatus()
-//                _todoState.value = StateHolder.Success<Flow<List<TODOItem>>>(todoList)
-//            } catch (e: Exception) {
-//                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of logs.")
-//                StateHolder.Error(e.message ?: "An unknown error occurred.")
-//            }
-//        }
-//    }
+    fun getListOrderedByStatus() {
+        viewModelScope.launch {
+            _todoState.value = StateHolder.Loading
+            try {
+                val todoList = todoItemDao.getItemsOrderedByStatus()
+                _todoState.value = StateHolder.Success<Flow<List<TODOItem>>>(todoList)
+            } catch (e: Exception) {
+                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of todos.")
+                StateHolder.Error(e.message ?: "An unknown error occurred.")
+            }
+        }
+    }
 
     fun upsertTODOItem(todoItem: TODOItem) {
         viewModelScope.launch {
             try {
-                Log.d("TODOVIEWMODEL", "Try block")
                 todoItemDao.upsertTODOItem(todoItem)
             } catch (e: Exception) {
-                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while getting the value of logs.")
+                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while adding a new todo.")
+                StateHolder.Error(e.message ?: "An unknown error occurred.")
+            }
+        }
+    }
+
+    fun deleteTODOItemById(id: Int){
+        viewModelScope.launch {
+            try {
+                todoItemDao.deleteTODOItemById(id)
+            } catch (e: Exception) {
+                Log.e("TODOVIEWMODEL", e.message ?: "An exception occurred while deleting a todo.")
                 StateHolder.Error(e.message ?: "An unknown error occurred.")
             }
         }

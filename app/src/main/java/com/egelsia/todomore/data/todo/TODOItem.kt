@@ -2,16 +2,19 @@ package com.egelsia.todomore.data.todo
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.Date
+import java.time.LocalDate
 
 @Entity(tableName = "todo_table")
 data class TODOItem(
     val title: String = "",
     val description: String = "",
-    val createdDate: Date = Date(System.currentTimeMillis()),
-    val dueDate: Date? = null,
-    val completionDate: Date? = null,
+
+    val createdDate: LocalDate = LocalDate.now(),
+    val dueDate: LocalDate? = null,
+    val completionDate: LocalDate? = null,
+
     val category: String = "",
+
     val priorityLevel: PriorityLevel = PriorityLevel.LOW,
     val status: TODOStatus = TODOStatus.TODO,
     val reminder: Boolean = false,

@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ToDoMoreTheme {
-                TodoApp(todoItemDao = todoItemDao)
+                TodoApp(todoItemDao = todoItemDao, userDao = userDao)
             }
         }
     }

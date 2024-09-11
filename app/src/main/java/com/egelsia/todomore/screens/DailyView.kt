@@ -2,6 +2,7 @@ package com.egelsia.todomore.screens
 
 import android.content.res.Resources
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,11 +17,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Label
 import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,7 +42,11 @@ import com.egelsia.todomore.data.TODOViewModel
 import com.egelsia.todomore.data.todo.PriorityLevel
 import com.egelsia.todomore.data.todo.TODOItem
 import com.egelsia.todomore.data.todo.TODOStatus
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Date
+import java.util.Locale
 
 @Composable
 fun DailyView(modifier: Modifier = Modifier, todoViewModel: TODOViewModel) {
@@ -58,7 +67,11 @@ fun DailyView(modifier: Modifier = Modifier, todoViewModel: TODOViewModel) {
             val todoItems by state.user.collectAsState(initial = emptyList())
             LazyColumn {
                 items(todoItems) { todoItem ->
-                    TODOListItem(todoItem = todoItem)
+                    TODOListItem(
+                        modifier = Modifier.clickable(onClick = {}),
+                        todoItem = todoItem,
+                        todoViewModel = todoViewModel
+                    )
                     HorizontalDivider(thickness = 0.dp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -66,36 +79,64 @@ fun DailyView(modifier: Modifier = Modifier, todoViewModel: TODOViewModel) {
     }
 }
 
-@Preview
 @Composable
 fun TODOListItem(modifier: Modifier = Modifier,
-                 todoItem: TODOItem = TODOItem(
-                     title = "TODO Title",
-                     description = "TODO Description",
-                     dueDate = Date(System.currentTimeMillis() + 264000),
-                     category = "TODO Category",
-                     priorityLevel = PriorityLevel.NORMAL,
-                     status = TODOStatus.TODO
-                 )) {
-    Column (modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.surface)
-        .padding(10.dp)
-    ){
-        Box {
-            Text(text = todoItem.title, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-        }
-        Spacer(modifier = Modifier.height(5.dp))
-        Box {
-            Text(text = todoItem.description, color = MaterialTheme.colorScheme.secondary, fontSize = 12.sp)
-        }
-        Spacer(modifier = Modifier.height(5.dp))
-        Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
-            Icon(imageVector = Icons.AutoMirrored.Rounded.Label, contentDescription = "Category", modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(modifier = Modifier.width(3.dp))
-            Text(text = todoItem.category.uppercase(), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Light)
-        }
+                todoItem: TODOItem,
+                todoViewModel: TODOViewModel) {
+    ListItem(
+        headlineContent = {
+        Text(text = todoItem.title)
+        },
+        supportingContent = {
+            if(todoItem.description != "") {
+                Column {
+                    Text(text = todoItem.description)
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
+                        Icon(imageVector = Icons.AutoMirrored.Rounded.Label, contentDescription = "Category", modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(text = "${ todoItem.category.uppercase() } • ${todoItem.priorityLevel.name.lowercase().replaceFirstChar(Char::uppercase) } Priority", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Light)
+                    }
+                }
+
+            }
+        },
+        leadingContent = {
+            TODOCheckbox(
+                todoStatus = todoItem.status,
+                onStatusChange = {todoStatus: TODOStatus ->
+                    todoViewModel.upsertTODOItem(todoItem.copy(status = todoStatus))
+                }
+            )
+        },
+        overlineContent = {
+            if (todoItem.dueDate != null) {
+                Text(text = "DUE ${todoItem.dueDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))}")
+            }
+        },
+    )
+}
+
+@Composable
+fun TODOCheckbox(
+    todoStatus: TODOStatus,
+    onStatusChange: (TODOStatus) -> Unit
+) {
+    val state = when (todoStatus) {
+        TODOStatus.TODO -> ToggleableState.Off
+        TODOStatus.PROGRESS -> ToggleableState.Indeterminate
+        TODOStatus.COMPLETED -> ToggleableState.On
     }
 
-
+    TriStateCheckbox(
+        state = state,
+        onClick = {
+            val newStatus = when (todoStatus) {
+                TODOStatus.TODO -> TODOStatus.PROGRESS
+                TODOStatus.PROGRESS -> TODOStatus.COMPLETED
+                TODOStatus.COMPLETED -> TODOStatus.TODO
+            }
+            onStatusChange(newStatus)
+        }
+    )
 }

@@ -9,14 +9,13 @@ import com.egelsia.todomore.data.todo.TODOItem
 import com.egelsia.todomore.data.todo.TODOItemDao
 
 @Database(
-    entities = [TODOItem::class, User::class],
+    entities = [TODOItem::class],
     version = 1
 )
 @TypeConverters(Converters::class)
 abstract class TodomoreDatabase: RoomDatabase() {
 
     abstract val todoItemDao: TODOItemDao
-    abstract val userDao: UserDao
 
     companion object {
         @Volatile

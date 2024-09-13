@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.egelsia.todomore.R
-import com.egelsia.todomore.data.TODOViewModel
+import com.egelsia.todomore.viewmodels.TODOViewModel
 import com.egelsia.todomore.data.todo.PriorityLevel
 import com.egelsia.todomore.data.todo.TODOItem
 
@@ -26,7 +26,6 @@ import com.egelsia.todomore.data.todo.TODOItem
 fun TopBar(
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
-    todoViewModel: TODOViewModel
 ) {
     CenterAlignedTopAppBar(
         title = { Icon(painterResource(R.drawable.todomore), contentDescription = "App Icon", tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(80.dp)) },
@@ -41,13 +40,7 @@ fun TopBar(
         actions = {
             IconButton(
                 onClick = {
-                    val todoItem = TODOItem(
-                        title = "TODO Item",
-                        description = "Description",
-                        category = "category",
-                        priorityLevel = PriorityLevel.NORMAL
-                    )
-                    todoViewModel.upsertTODOItem(todoItem)
+                    navController.navigate("user")
                 }
             ) {
                 Icon(Icons.Rounded.AccountCircle, "Account")

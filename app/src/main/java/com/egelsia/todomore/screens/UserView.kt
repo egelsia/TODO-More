@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.egelsia.todomore.data.user.UserPreferences
@@ -54,10 +53,9 @@ fun UserView(
                 defaultElevation = 6.dp
             ),
             modifier = Modifier
-                .padding(16.dp)
                 .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
-
             ListItem(
                 leadingContent = {
                     Icon(

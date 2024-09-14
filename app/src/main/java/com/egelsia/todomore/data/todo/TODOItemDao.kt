@@ -31,4 +31,7 @@ interface TODOItemDao {
 
     @Query("SELECT * FROM todo_table ORDER BY category ASC")
     fun getItemsOrderedByCategory(): Flow<List<TODOItem>>
+
+    @Query("SELECT * FROM todo_table WHERE id = :id")
+    fun getItemById(id: Int) : Flow<TODOItem>
 }

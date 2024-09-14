@@ -4,19 +4,16 @@ package com.egelsia.todomore.screens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -24,8 +21,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,8 +63,12 @@ fun TodoApp(startDestination: String = "main", todoItemDao: TODOItemDao) {
     var selectedItem by remember { mutableIntStateOf(2) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showUserNameDialog by remember { mutableStateOf(!userPreferences.userExists()) }
+    var showNavBar by remember { mutableStateOf(true) }
+    var showUserTopBar by remember { mutableStateOf(false)}
+    var showNormalTopBar by remember { mutableStateOf(true)}
 
-    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -88,7 +87,7 @@ fun TodoApp(startDestination: String = "main", todoItemDao: TODOItemDao) {
     }
 
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false
+        skipPartiallyExpanded = true
     )
 
     LaunchedEffect(sheetState.isVisible) {
@@ -97,79 +96,64 @@ fun TodoApp(startDestination: String = "main", todoItemDao: TODOItemDao) {
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            topBar = {
-                when (navBackStackEntry.value?.destination?.route) {
-                    "user" -> {
-                        TopAppBar(
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                titleContentColor = MaterialTheme.colorScheme.primary,
-                            ),
-                            title = {
-                                Text("Your Stats")
-                            },
-                            navigationIcon = {
-                                IconButton(onClick = { navController.popBackStack() }) {
-                                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                                }
-                            }
-                        )
-                    }
-                    else -> {
-                        TopBar(
-                            navController = navController,
-                        )
-                    }
-                }
-            },
-            bottomBar = {
-                when (navBackStackEntry.value?.destination?.route) {
-                    "user" -> {}
-                    else -> {
-                        NavBar(
-                            selectedItem = selectedItem,
-                            navController = navController,
-                            onItemSelected = { selectedItem = it })
-                    }
-                }
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick = { showBottomSheet = true }) {
-                    Icon(imageVector = Icons.Rounded.Add, contentDescription = "")
-                }
-            },
-            snackbarHost = {
-                SnackbarHost(
-                    hostState = snackbarHostState,
-                    //modifier = Modifier.align(Alignment.BottomCenter)
-                )
-//            {
-//                Popup(
-//                    onDismissRequest = {
-//                        it.dismiss()
-//                    }
-//                ) {
-//                    Snackbar(it)
-//                }
-//            }
-            }
-        ) { paddingValues ->
 
-            NavHost(
+    Scaffold(
+        topBar = {
+            TopBar(
                 navController = navController,
-                startDestination = startDestination,
-                modifier = Modifier.padding(paddingValues)
-            ) {
-                composable("main") {
-                    DailyView(todoViewModel = todoViewModel)
+                currentRoute = currentRoute
+            )
+        },
+        bottomBar = {
+            when(currentRoute) {
+                "todo/{id}" -> {}
+                else -> {
+                    NavBar(
+                        selectedItem = selectedItem,
+                        navController = navController,
+                        onItemSelected = { selectedItem = it })
                 }
-                composable("user") {
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showBottomSheet = true }) {
+                Icon(imageVector = Icons.Rounded.Add, contentDescription = "")
+            }
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+            )
+        }
+    ) { paddingValues ->
+
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+        ) {
+            composable("main") {
+                Box(modifier = Modifier.padding(paddingValues)){
+                    DailyView(todoViewModel = todoViewModel, navController = navController)
+                }
+            }
+            composable("user") {
+                Box(modifier = Modifier.padding(paddingValues)){
                     UserView()
                 }
             }
+            composable("todo/{id}") { navBackStackEntry ->
+                val id = navBackStackEntry.arguments?.getString("id")?.toInt()
+                Box(modifier = Modifier.padding(top = paddingValues.calculateTopPadding().value.dp)) {
+                    TodoView(
+                        id = id ?: -1,
+                        todoViewModel = todoViewModel,
+                        navController = navController,
+                        snackbarViewModel = snackbarViewModel)
+                }
+
+            }
         }
+    }
 
         if (showUserNameDialog) {
             UsernameDialog(
@@ -191,7 +175,7 @@ fun TodoApp(startDestination: String = "main", todoItemDao: TODOItemDao) {
                 snackbarViewModel = snackbarViewModel
             )
         }
-    }
+
 
 }
 

@@ -2,7 +2,6 @@ package com.egelsia.todomore.data
 
 import androidx.room.TypeConverter
 import java.time.LocalDate
-import java.util.Date
 
 class Converters {
     @TypeConverter
@@ -15,7 +14,6 @@ class Converters {
         return date?.toString()
     }
 
-//
 //    @TypeConverter
 //    fun fromColor(color: Color): Long {
 //        return color.value.toLong()

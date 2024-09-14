@@ -40,11 +40,11 @@ fun NavBar(
 ) {
 
     val navList = listOf(
-        CustomIcon(Icons.Outlined.Today, Icons.Rounded.Today,"main", "Today"),
+        CustomIcon(Icons.Outlined.Today, Icons.Rounded.Today, "main", "Today"),
         CustomIcon(Icons.Outlined.DateRange, Icons.Rounded.DateRange, "main", "Weekly"),
-        CustomIcon(Icons.Outlined.Timer, Icons.Rounded.Timer,"main", "Timer"),
-        CustomIcon(Icons.Outlined.CalendarToday, Icons.Rounded.CalendarToday,"main", "Monthly"),
-        CustomIcon(Icons.Rounded.Checklist, Icons.Rounded.Checklist,"main", "All")
+        CustomIcon(Icons.Outlined.Timer, Icons.Rounded.Timer, "main", "Timer"),
+        CustomIcon(Icons.Outlined.CalendarToday, Icons.Rounded.CalendarToday, "main", "Monthly"),
+        CustomIcon(Icons.Rounded.Checklist, Icons.Rounded.Checklist, "main", "All")
     )
 
     NavigationBar(

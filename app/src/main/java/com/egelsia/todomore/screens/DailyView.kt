@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +49,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.egelsia.todomore.data.StateHolder
 import com.egelsia.todomore.viewmodels.TODOViewModel
 import com.egelsia.todomore.data.todo.TODOItem
@@ -60,7 +60,11 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @Composable
-fun DailyView(modifier: Modifier = Modifier, todoViewModel: TODOViewModel) {
+fun DailyView(
+    modifier: Modifier = Modifier,
+    todoViewModel: TODOViewModel,
+    navController: NavHostController
+) {
     todoViewModel.getListOrderedByCreatedDate()
     val todoState by todoViewModel.todoState.collectAsState()
     LaunchedEffect(Unit) {
@@ -75,17 +79,18 @@ fun DailyView(modifier: Modifier = Modifier, todoViewModel: TODOViewModel) {
             Text("Error: ${state.message}")
         }
         is StateHolder.Success -> {
-            val todoItems by state.user.collectAsState(initial = emptyList())
+            val todoItems by state.data.collectAsState(initial = emptyList())
             LazyColumn {
-                items(todoItems) { todoItem ->
+                items(todoItems, key = {it.id}) { todoItem ->
                     SwipeToDeleteItem(
+                        modifier = Modifier,
                         item = todoItem,
-                        refresher = { todoViewModel.getListOrderedByCreatedDate() },
                         onDelete = {
                             todoViewModel.deleteTODOItem(it)
-                        } ) {
+                        },
+                        onClick = {navController.navigate("todo/${todoItem.id}")} ) {
                         TODOListItem(
-                            modifier = Modifier.clickable(onClick = {}),
+                            modifier = Modifier,
                             todoItem = todoItem,
                             todoViewModel = todoViewModel
                         )
@@ -112,10 +117,26 @@ fun TODOListItem(modifier: Modifier = Modifier,
                     Text(text = todoItem.description)
                     Spacer(modifier = Modifier.height(5.dp))
                 }
-                Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
-                    Icon(imageVector = Icons.AutoMirrored.Rounded.Label, contentDescription = "Tag", modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.primary)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.Label,
+                        contentDescription = "Tag",
+                        modifier = Modifier.size(12.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                     Spacer(modifier = Modifier.width(3.dp))
-                    Text(text = "${ if(todoItem.category != "") todoItem.category.uppercase() + " • " else "" }${todoItem.priorityLevel.name.lowercase().replaceFirstChar(Char::uppercase) } Priority", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Light)
+                    Text(
+                        text = "${if (todoItem.category != "") todoItem.category.uppercase() + " • " else ""}${
+                            todoItem.priorityLevel.name.lowercase()
+                                .replaceFirstChar(Char::uppercase)
+                        } Priority",
+                        fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Light
+                    )
                 }
             }
         },
@@ -128,7 +149,6 @@ fun TODOListItem(modifier: Modifier = Modifier,
                     } else {
                         todoViewModel.upsertTODOItem(todoItem.copy(status = todoStatus, completionDate = LocalDate.now()))
                     }
-
                 }
             )
         },
@@ -172,10 +192,11 @@ fun DeleteBackground(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <T> SwipeToDeleteItem(
+    modifier: Modifier,
     item: T,
     onDelete: (T) -> Unit,
+    onClick: () -> Unit,
     animationDuration: Int = 200,
-    refresher: () -> Unit,
     content: @Composable (T) -> Unit
 ) {
     var isRemoved by remember {
@@ -200,7 +221,6 @@ fun <T> SwipeToDeleteItem(
         if(isRemoved) {
             delay(animationDuration.toLong())
             onDelete(item)
-            refresher()
             Toast.makeText(context, "The todo is successfully deleted.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -214,7 +234,10 @@ fun <T> SwipeToDeleteItem(
         SwipeToDismissBox(
             state = state,
             backgroundContent = { DeleteBackground(swipeDismissState = state) },
-            content = { content(item) },
+            content = {
+                Box(modifier = Modifier.clickable(onClick = { onClick() })) {
+                    content(item)
+                } },
             enableDismissFromStartToEnd = false
         )
 

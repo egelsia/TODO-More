@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -48,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.egelsia.todomore.viewmodels.TODOViewModel
@@ -65,12 +67,10 @@ import java.time.format.FormatStyle
 fun AddTODOSheet(
     onChange: (Boolean) -> Unit,
     todoViewModel: TODOViewModel,
+    todoItem: TODOItem? = null,
     snackbarViewModel: SnackbarViewModel
 ) {
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = false,
-    )
-
+    val sheetState = rememberModalBottomSheetState()
     val scrollState = rememberScrollState()
 
     ModalBottomSheet(
@@ -82,6 +82,7 @@ fun AddTODOSheet(
             modifier = Modifier.padding(16.dp),
             todoViewModel = todoViewModel,
             snackbarViewModel = snackbarViewModel,
+            todoItem = todoItem,
             closeSheet = { onChange(false) }
         )
     }
@@ -93,16 +94,11 @@ fun AddTODOForm(
     modifier: Modifier = Modifier,
     todoViewModel: TODOViewModel,
     snackbarViewModel: SnackbarViewModel,
+    todoItem: TODOItem? = null,
     closeSheet: () -> Unit
  ) {
     val context = LocalContext.current
-    var title by remember { mutableStateOf("")}
-    var description by remember { mutableStateOf("")}
-    var category by remember { mutableStateOf("")}
-    var reminder by remember { mutableStateOf(false) }
 
-    var priorityLevel by remember {mutableStateOf(PriorityLevel.LOW)}
-    var selectedIndex by remember { mutableIntStateOf(0) }
     var dropDownExpanded by remember { mutableStateOf(false)}
     val dropDownItems = listOf(
         PriorityLevel.LOW to "Low Priority",
@@ -111,13 +107,28 @@ fun AddTODOForm(
         )
 
     var datePickerExpanded by remember { mutableStateOf(false) }
-    var creationDate by remember { mutableStateOf (LocalDate.now())}
-
-    var dueDate by remember { mutableStateOf<LocalDate?>(null) }
     var dueDatePickerExpanded by remember { mutableStateOf(false) }
 
     var isTitleError by rememberSaveable { mutableStateOf(false) }
     var isDatesError by rememberSaveable { mutableStateOf(false) }
+
+    val initialTitle = todoItem?.title ?: ""
+    val initialDescription = todoItem?.description ?: ""
+    val initialCategory = todoItem?.category ?: ""
+    val initialReminder = todoItem?.reminder ?: false
+    val initialPriorityLevel = todoItem?.priorityLevel ?: PriorityLevel.LOW
+    val initialSelectedIndex = todoItem?.priorityLevel?.ordinal ?: 0
+    val initialCreationDate = todoItem?.createdDate ?: LocalDate.now()
+    val initialDueDate = todoItem?.dueDate
+
+    var title by remember { mutableStateOf(initialTitle) }
+    var description by remember { mutableStateOf(initialDescription) }
+    var category by remember { mutableStateOf(initialCategory) }
+    var reminder by remember { mutableStateOf(initialReminder) }
+    var priorityLevel by remember { mutableStateOf(initialPriorityLevel) }
+    var selectedIndex by remember { mutableIntStateOf(initialSelectedIndex) }
+    var creationDate by remember { mutableStateOf(initialCreationDate) }
+    var dueDate by remember { mutableStateOf(initialDueDate) }
 
     fun validateTitle(text: String) {
         isTitleError = text == ""
@@ -161,20 +172,31 @@ fun AddTODOForm(
                     Icon(Icons.Rounded.Error, "Error", tint = MaterialTheme.colorScheme.error)
                 }
             },
-            keyboardActions = KeyboardActions { validateTitle(title) }
+            keyboardActions = KeyboardActions { validateTitle(title) },
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Next
+            )
         )
+
         TextField(
             modifier = Modifier.fillMaxWidth(),
             label = {Text("Description")},
             value = description,
             onValueChange = {description = it},
             )
+
         Spacer(modifier = Modifier.height(16.dp))
+
         TextField(
             modifier = Modifier.fillMaxWidth(),
             label = {Text("Category")},
             value = category,
             onValueChange = {category = it},
+            keyboardOptions = KeyboardOptions(
+                imeAction =  ImeAction.Done
+            ),
+            singleLine = true
+
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -286,7 +308,7 @@ fun AddTODOForm(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ){
-            IconButton(onClick = {reminder = true}) {
+            IconButton(onClick = {reminder = !reminder}) {
                 Icon(
                     imageVector =
                     if (reminder)
@@ -304,9 +326,10 @@ fun AddTODOForm(
                     {
                         todoViewModel.upsertTODOItem(
                             TODOItem(
+                                id = todoItem?.id ?: 0,
                                 title = title,
                                 description = description,
-                                createdDate = LocalDate.now(),
+                                createdDate = creationDate,
                                 dueDate = dueDate,
                                 category = category,
                                 reminder = reminder,
@@ -314,7 +337,8 @@ fun AddTODOForm(
                             )
                         )
                         closeSheet()
-                        snackbarViewModel.showSnackbar("TODO is successfully created!")
+                        val todoSheetSnackbarText = if(todoItem != null) "TODO is successfully updated" else "TODO is successfully created!"
+                        snackbarViewModel.showSnackbar(todoSheetSnackbarText)
                     } else {
                         if(title == "") {
                             Toast.makeText(context, "TODO cannot be created without a title!", Toast.LENGTH_SHORT).show()
@@ -323,7 +347,8 @@ fun AddTODOForm(
                         }
                     }
             }) {
-                Text("Add TODO")
+                val todoSheetButtonText = if (todoItem != null) "Update TODO" else "Add TODO"
+                Text(todoSheetButtonText)
             }
         }
 
@@ -338,13 +363,22 @@ fun AddTODOForm(
             )
         }
         if (datePickerExpanded) {
+            val now = LocalDate.now()
+            val startOfDayNow = now.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             TODODatePicker(
                 onDismiss = { datePickerExpanded = false },
                 onDateSelected = {
                     creationDate = it
                     datePickerExpanded = false
                 },
-                initialDateMillis = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                initialDateMillis =
+
+                if (dueDate == null || (dueDate ?: now) >= now) {
+                    startOfDayNow
+                } else {
+                    dueDate?.atStartOfDay(ZoneId.systemDefault())?.toInstant()?.toEpochMilli() ?: startOfDayNow
+                }
+
             )
         }
     }
@@ -403,7 +437,7 @@ class FutureSelectableDates(
     private val dayStart: Long
 ): SelectableDates {
     private val now = LocalDate.now()
-    private val dayStart2 = now.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    //private val dayStart2 = now.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {
         return utcTimeMillis >= dayStart

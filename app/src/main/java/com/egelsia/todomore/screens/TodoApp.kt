@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -63,9 +64,6 @@ fun TodoApp(startDestination: String = "main", todoItemDao: TODOItemDao) {
     var selectedItem by remember { mutableIntStateOf(2) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var showUserNameDialog by remember { mutableStateOf(!userPreferences.userExists()) }
-    var showNavBar by remember { mutableStateOf(true) }
-    var showUserTopBar by remember { mutableStateOf(false)}
-    var showNormalTopBar by remember { mutableStateOf(true)}
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -131,14 +129,34 @@ fun TodoApp(startDestination: String = "main", todoItemDao: TODOItemDao) {
             navController = navController,
             startDestination = startDestination,
         ) {
-            composable("main") {
+            composable("main" ) {
                 Box(modifier = Modifier.padding(paddingValues)){
-                    DailyView(todoViewModel = todoViewModel, navController = navController)
+                    ListView(todoViewModel = todoViewModel, navController = navController, route = currentRoute)
+                }
+            }
+            composable("today" ) {
+                Box(modifier = Modifier.padding(paddingValues)){
+                    ListView(todoViewModel = todoViewModel, navController = navController, route = currentRoute)
+                }
+            }
+            composable("week" ) {
+                Box(modifier = Modifier.padding(paddingValues)){
+                    ListView(todoViewModel = todoViewModel, navController = navController, route = currentRoute)
+                }
+            }
+            composable("month" ) {
+                Box(modifier = Modifier.padding(paddingValues)){
+                    ListView(todoViewModel = todoViewModel, navController = navController, route = currentRoute)
                 }
             }
             composable("user") {
                 Box(modifier = Modifier.padding(paddingValues)){
                     UserView()
+                }
+            }
+            composable("timer") {
+                Box(modifier = Modifier.padding(paddingValues), contentAlignment = Alignment.Center){
+                    Text("Not implemented yet.")
                 }
             }
             composable("todo/{id}") { navBackStackEntry ->

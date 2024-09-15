@@ -60,12 +60,27 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @Composable
-fun DailyView(
+fun ListView(
     modifier: Modifier = Modifier,
     todoViewModel: TODOViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    route: String?
 ) {
-    todoViewModel.getListOrderedByCreatedDate()
+    when(route) {
+        "today" -> {
+            todoViewModel.getListOfToday()
+        }
+        "week" -> {
+            todoViewModel.getListOfThisWeek()
+        }
+        "month" -> {
+            todoViewModel.getListOfThisMonth()
+        }
+        else -> {
+            todoViewModel.getListOrderedByCreatedDate()
+        }
+    }
+
     val todoState by todoViewModel.todoState.collectAsState()
     LaunchedEffect(Unit) {
         todoViewModel.getListOrderedByCreatedDate()

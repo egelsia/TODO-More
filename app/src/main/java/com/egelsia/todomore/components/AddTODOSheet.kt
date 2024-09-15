@@ -70,11 +70,11 @@ fun AddTODOSheet(
     todoItem: TODOItem? = null,
     snackbarViewModel: SnackbarViewModel
 ) {
-    val sheetState = rememberModalBottomSheetState()
-    val scrollState = rememberScrollState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
-        modifier = Modifier.fillMaxHeight().verticalScroll(scrollState),
+        modifier = Modifier
+            .fillMaxHeight(),
         sheetState = sheetState,
         onDismissRequest = { onChange(false) }
     ) {
@@ -147,7 +147,8 @@ fun AddTODOForm(
     }
 
     Column(modifier = modifier
-        .fillMaxSize(),
+        .fillMaxSize()
+        .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally) {
         TextField(
             modifier = Modifier.fillMaxWidth(),

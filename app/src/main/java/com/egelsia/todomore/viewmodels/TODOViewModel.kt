@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 class TODOViewModel(
     private val todoItemDao: TODOItemDao,
@@ -145,6 +148,60 @@ class TODOViewModel(
                     e.message ?: "An exception occurred while getting the todo item."
                 )
                 _singleTodoState.value = StateHolder.Error(e.message ?: "An unknown error occurred.")
+            }
+        }
+    }
+
+    fun getListOfToday() {
+        viewModelScope.launch {
+            _todoState.value = StateHolder.Loading
+            try {
+                val now = LocalDate.now()
+                val firstDay = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                val lastDay = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                val todoList = todoItemDao.getListBetweenDates(firstDay, lastDay)
+                _todoState.value = StateHolder.Success(todoList)
+            } catch (e: Exception) {
+                Log.e(
+                    "TODOVIEWMODEL",
+                    e.message ?: "An exception occurred while getting the todo item."
+                )
+                _todoState.value = StateHolder.Error(e.message ?: "An unknown error occurred.")
+            }
+        }
+    }
+
+    fun getListOfThisMonth() {
+        viewModelScope.launch {
+            _todoState.value = StateHolder.Loading
+            try {
+                val now = LocalDate.now()
+                val firstDay = now.with(TemporalAdjusters.firstDayOfMonth())
+                val lastDay = now.with(TemporalAdjusters.lastDayOfMonth())
+                val todoList = todoItemDao.getListBetweenDates(firstDay, lastDay)
+                _todoState.value = StateHolder.Success(todoList)
+            } catch (e: Exception) {
+                Log.e(
+                    "TODOVIEWMODEL",
+                    e.message ?: "An exception occurred while getting the todo item."
+                )
+                _todoState.value = StateHolder.Error(e.message ?: "An unknown error occurred.")
+            }
+        }
+    }
+
+    fun getListOfThisWeek() {
+        viewModelScope.launch {
+            _todoState.value = StateHolder.Loading
+            try {
+                val todoList = todoItemDao.getListByDate(LocalDate.now())
+                _todoState.value = StateHolder.Success(todoList)
+            } catch (e: Exception) {
+                Log.e(
+                    "TODOVIEWMODEL",
+                    e.message ?: "An exception occurred while getting the todo item."
+                )
+                _todoState.value = StateHolder.Error(e.message ?: "An unknown error occurred.")
             }
         }
     }

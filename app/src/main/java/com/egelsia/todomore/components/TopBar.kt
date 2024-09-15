@@ -28,55 +28,64 @@ fun TopBar(
     navController: NavController = rememberNavController(),
     currentRoute: String?
 ) {
-    val title = when (currentRoute) {
-        "user" -> "Your Stats"
-        "todo/{id}" -> "TODO"
-        else -> ""
-    }
-    when (currentRoute) {
-        "main" -> {
-            CenterAlignedTopAppBar(
-                title = { Icon(painterResource(R.drawable.todomore), contentDescription = "App Icon", tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(80.dp)) },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                        }
-                    ) {
-                        Icon(Icons.Rounded.Menu, "Menu")
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            navController.navigate("user")
-                        }
-                    ) {
-                        Icon(Icons.Rounded.AccountCircle, "Account")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-            )
-        }
-        else -> {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                title = {
-                    Text(title)
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                    }
+    val titles = mapOf(
+        "user" to "Your Stats",
+        "todo/{id}" to "TODO"
+    )
+
+    // Determine title based on current route
+    val title = titles[currentRoute] ?: ""
+
+    // Determine whether to show GeneralTopBar or TopAppBar
+    val isGeneralTopBar = currentRoute in listOf("main", "today", "week", "month", "timer")
+
+    if (isGeneralTopBar) {
+        GeneralTopBar(navController = navController)
+    } else {
+        TopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary
+            ),
+            title = {
+                Text(title)
+            },
+            navigationIcon = {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                 }
-            )
-        }
+            }
+        )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GeneralTopBar(modifier: Modifier = Modifier, navController: NavController) {
+    CenterAlignedTopAppBar(
+        title = { Icon(painterResource(R.drawable.todomore), contentDescription = "App Icon", tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(80.dp)) },
+        navigationIcon = {
+            IconButton(
+                onClick = {
+                }
+            ) {
+                Icon(Icons.Rounded.Menu, "Menu")
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = {
+                    navController.navigate("user")
+                }
+            ) {
+                Icon(Icons.Rounded.AccountCircle, "Account")
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+    )
 }

@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface TODOItemDao {
@@ -34,4 +35,10 @@ interface TODOItemDao {
 
     @Query("SELECT * FROM todo_table WHERE id = :id")
     fun getItemById(id: Int) : Flow<TODOItem>
+
+    @Query("SELECT * FROM todo_table WHERE createdDate =:date OR dueDate =:date")
+    fun getListByDate(date: LocalDate): Flow<List<TODOItem>>
+
+    @Query("SELECT * FROM todo_table WHERE createdDate BETWEEN :firstDate AND :lastDate OR dueDate BETWEEN :firstDate AND :lastDate")
+    fun getListBetweenDates(firstDate: LocalDate, lastDate: LocalDate): Flow<List<TODOItem>>
 }

@@ -152,7 +152,7 @@ class TODOViewModel(
         }
     }
 
-    fun getListOfToday() {
+    fun getListOfThisWeek() {
         viewModelScope.launch {
             _todoState.value = StateHolder.Loading
             try {
@@ -190,7 +190,7 @@ class TODOViewModel(
         }
     }
 
-    fun getListOfThisWeek() {
+    fun getListOfToday() {
         viewModelScope.launch {
             _todoState.value = StateHolder.Loading
             try {
